@@ -1,0 +1,8 @@
+# Ignorar todas las carpetas
+*/  
+
+# Ignorar .vscode (configuración del editor de Visual Studio Code)
+.vscode/
+
+# Ignorar .python-version (archivo que especifica la versión de Python en uso)
+.python-version
