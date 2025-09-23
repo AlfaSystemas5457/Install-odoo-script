@@ -157,6 +157,17 @@ ExecStart=$ODOO_DIR/venv/bin/python3 $ODOO_DIR/odoo/odoo-bin --config $CONF_FILE
 WantedBy=multi-user.target
 EOL
 
+# add user
+if id "$1" &>/dev/null; then
+	echo "El usuario '$1' ya existe."
+else
+	useradd -m -d $ODOO_DIR -U -r -s /bin/bash $1
+	echo "Usuario '$1' creado."
+fi
+
+# chown
+chown -R $1:$1 $ODOO_DIR
+
 # Servicio
 SERVICE_NAME="$1-odoo-server.service"
 systemctl daemon-reload
@@ -168,17 +179,6 @@ else
 	systemctl enable --now "$SERVICE_NAME"
 	echo "Servicio '$SERVICE_NAME' activado."
 fi
-
-# add user
-if id "$1" &>/dev/null; then
-	echo "El usuario '$1' ya existe."
-else
-	useradd -m -d $ODOO_DIR -U -r -s /bin/bash $1
-	echo "Usuario '$1' creado."
-fi
-
-# chown
-chown -R $1:$1 $ODOO_DIR
 
 # datos
 echo "----------------------------------------------------------------------"
