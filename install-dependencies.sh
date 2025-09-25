@@ -12,7 +12,7 @@ command_check_and_install() {
 	command -v $command >/dev/null 2>&1
 	if [ $? -ne 0 ]; then
 		echo "El comando '$command' no está instalado. Instalando '$package'..."
-		apt-get install -y $package
+		apt install -y $package
 	else
 		echo "El comando '$command' ya está instalado."
 	fi

@@ -3,6 +3,8 @@
 # This script adds a new Nginx configuration file to the specified directory.
 # Usage: ./install-odoo.sh <nombre de directorio> <version de odoo - opcional>
 
+set -e
+
 if [ -z "$1" ]; then
 	echo "Error: Debes proporcionar el nombre del directorio."
 	echo "Uso: ./install-odoo.sh <nombre de directorio> <version de odoo - opcional>"
@@ -99,11 +101,19 @@ CONF_FILE="$ODOO_DIR/conf/odoo.conf"
 NUM_WORKERS="$(($(nproc) * 2))"
 
 # RAM
-RAM_GB=$(grep MemTotal /proc/meminfo | awk '{print int($2*1024)}')
-ODOO_RAM=$(($RAM_GB * 75 / 100))
-RAM_PER_WORKER=$(($ODOO_RAM / $NUM_WORKERS))
-LIMIT_SOFT=$(($RAM_PER_WORKER * 80 / 100))
-LIMIT_HARD=$(($RAM_PER_WORKER * 110 / 100))
+MEM_KB=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+RAM_MB=$(($MEM_KB / 1024))
+ODOO_RAM_MB=$(($RAM_MB * 75 / 100))
+RAM_PER_WORKER_MB=$(($ODOO_RAM_MB / $NUM_WORKERS))
+
+LIMIT_SOFT_MB=$(($RAM_PER_WORKER_MB * 80 / 100))
+LIMIT_HARD_MB=$(($RAM_PER_WORKER_MB * 110 / 100))
+
+LIMIT_SOFT_BYTES=$(($LIMIT_SOFT_MB * 1024 * 1024))
+LIMIT_HARD_BYTES=$(($LIMIT_HARD_MB * 1024 * 1024))
+
+LIMIT_SOFT=$LIMIT_SOFT_BYTES
+LIMIT_HARD=$LIMIT_HARD_BYTES
 
 # if [ -d "$CONF_FILE" ]; then
 # 	echo "$CONF_FILE ya existe."
@@ -138,6 +148,18 @@ if [ -d "$ODOO_DIR/venv" ]; then
 else
 	echo "Creando entorno virtual -> $ODOO_DIR/venv."
 	python3 -m venv $ODOO_DIR/venv
+
+	# Install dependencies
+	source "$ODOO_DIR/venv/bin/activate"
+	pip install --upgrade pip
+
+	REQ_FILE="$ODOO_DIR/odoo/requirements.txt"
+	if [ -f "$REQ_FILE" ]; then
+		echo "Instalando dependencias desde $REQ_FILE"
+		pip install -r "$REQ_FILE"
+	else
+		echo "No se encontró $REQ_FILE — no se instalarán dependencias adicionales."
+	fi
 fi
 
 SERVICE_CONF="/etc/systemd/system/$1-odoo-server.service"
