@@ -46,6 +46,7 @@ command_check_and_install "libxmlsec1-dev" "libxmlsec1-dev"
 command_check_and_install "libxslt-dev" "libxslt-dev"
 command_check_and_install "certbot" "certbot"
 command_check_and_install "python3-certbot-nginx" "python3-certbot-nginx"
+command_check_and_install "zip" "zip"
 
 echo ""
 echo "Dependencias verificadas e instaladas si era necesario."
