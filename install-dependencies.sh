@@ -9,8 +9,8 @@ apt-get update -y
 command_check_and_install() {
 	local command=$1
 	local package=$2
-	command -v $command >/dev/null 2>&1
-	if [ $? -ne 0 ]; then
+
+	if [ command -v $command >/dev/null 2>&1 -ne 0 ]; then
 		echo "El comando '$command' no está instalado. Instalando '$package'..."
 		apt install -y $package
 	else
