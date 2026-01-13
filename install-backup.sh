@@ -9,7 +9,7 @@ if [ -z "$1" ]; then
 fi
 
 USER_NAME="$1"
-BACKUP_ROOT="/opt/backup/$USER_NAME"
+BACKUP_ROOT="/opt/$USER_NAME/backup"
 BACKUP_FILE_DIR="$BACKUP_ROOT/backup.sh"
 LOG_FILE="$BACKUP_ROOT/backup.log"
 
@@ -20,8 +20,7 @@ cat >"$BACKUP_FILE_DIR" <<EOL
 
 DB_NAME="$USER_NAME"
 DB_USER="$USER_NAME"
-# Escapamos el signo \$ para que se evalúe cuando se ejecute el backup, no ahora
-USER_EXEC=\$DB_NAME 
+USER_EXEC=\$DB_NAME
 FILESTORE_DATA="/opt/\$DB_NAME/data/filestore"
 BACKUP_DIR="/opt/\$DB_NAME/backup/$USER_NAME"
 DATE=\$(date +"%Y-%m-%d_%HH-%MM-%SS")
@@ -52,15 +51,16 @@ find "\$BACKUP_DIR" -name "*.zip" -type f -mtime +30 -exec rm -f {} \;
 echo "\${DATE} - 🧹 Backups antiguos eliminados."
 EOL
 
-chown -R "$USER_NAME:$USER_NAME" "$BACKUP_ROOT"
+chown -R "$USER_NAME:$USER_NAME" "/opt/$USER_NAME"
 #chmod +x "$BACKUP_FILE_DIR"
 
-CRON_JOB="0 0 * * 0 /usr/bin/bash $BACKUP_FILE_DIR >> $LOG_FILE 2>&1"
+CRON_JOB="0 0 * * 0 bash $BACKUP_FILE_DIR >> $LOG_FILE 2>&1"
 
 echo "Programando tarea en el crontab del usuario: $USER_NAME..."
 (crontab -u "$USER_NAME" -l 2>/dev/null | grep -Fv "$BACKUP_FILE_DIR" ; echo "$CRON_JOB") | crontab -u "$USER_NAME" -
 
 echo "----------------------------------------------------------------------"
 echo "✅ Backup configurado exitosamente para el usuario: $USER_NAME"
-echo "📅 El cron se ejecutará como '$USER_NAME' y no como root."
 echo "----------------------------------------------------------------------"
+
+exit 0
