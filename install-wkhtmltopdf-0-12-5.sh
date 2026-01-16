@@ -4,17 +4,22 @@ echo ""
 echo "----------------------------------------------------------------------"
 echo "Instalando wkhtmltopdf..."
 
+cd ~
 wget https://ftp.debian.org/debian/pool/main/o/openssl/libssl1.1_1.1.1w-0+deb11u1_amd64.deb
 dpkg -i libssl1.1*
+rm -rf libssl1.1*
 
+sudo apt update
+sudo apt install -y fontconfig libxrender1 libfreetype6 libxext6 libx11-6 xfonts-75dpi xfonts-base
 sudo apt remove wkhtmltopdf
 
-cd ~
-wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
-tar xvf wkhtmltox*.tar.xz
+wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb
 
-sudo mv wkhtmltox/bin/wkhtmlto* /usr/bin
-sudo apt-get install -y openssl build-essential libssl-dev libxrender-dev git-core libx11-dev libxext-dev libfontconfig1-dev libfreetype6-dev fontconfig
+sudo dpkg -i wkhtmltox_0.12.5-1.stretch_amd64.deb
+sudo apt --fix-broken install -y
+
+sudo ln -s /usr/local/bin/wkhtmltopdf /usr/bin/wkhtmltopdf
+sudo ln -s /usr/local/bin/wkhtmltoimage /usr/bin/wkhtmltoimage
 
 rm -rf wkhtmltox* libssl*
 
